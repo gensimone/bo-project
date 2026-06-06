@@ -1,0 +1,68 @@
+.TH "ftext" "1" 
+.SH "NAME"
+.PP
+ftext - Format text like in a newspaper article.
+.SH "SYNOPSIS"
+.PP
+ftext [OPTION]...
+.SH "DESCRIPTION"
+.PP
+ftext allows you to format text like a newspaper article.
+Text formatting is done using the specified parameters (see OPTIONS).
+Each column of the resulting text is formatted according to the following rules:
+
+.IP 1)  4
+Words in the line are aligned to the edges if they are not part of the last line of the paragraph.
+
+.IP 2)  4
+Words in the line are aligned to the left side of the column if they are part of the last line of the paragraph.
+
+.PP
+For example:
+
+.PP
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+
+.PP
+Produces the following output:
+
+.PP
+lorem ipsum dolor sit 
+.br
+amet,     consectetur 
+.br
+adipiscing  elit, sed 
+.br
+incididunt  ut labore 
+.br
+et    dolore    magna 
+.br
+aliqua.
+.SH "OPTIONS"
+.PP
+For an up-to-date list of default option values, see ftext -h.
+.TP
+\fB-c, --columns\fP
+Number of columns.
+.TP
+\fB-l, --lines\fP
+Number of lines.
+.TP
+\fB-w, --width\fP
+Number of characters on a row of a column.
+.TP
+\fB-g, --gap\fP
+Number of spaces between columns
+.TP
+\fB-h, --help\fP
+Show help and exit.
+.TP
+\fB-v, --version\fP
+Output version information and exit.
+.SH "AUTHOR"
+.PP
+Written by Simone Gentili.
+.SH "REPORTING BUGS"
+.PP
+Please report any bugs to \fIhttps://github.com/gensimone/ftext/issues\fP

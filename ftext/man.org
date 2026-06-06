@@ -1,0 +1,57 @@
+#+TITLE: ftext
+#+MAN_CLASS: User Commands
+#+MAN_SECTION: 1
+#+MAN_AUTHOR: Simone Gentili
+#+MAN_EMAIL: gensimone.git@gmail.com
+#+MAN_SOURCE: ftext
+#+MAN_DESCRIPTION: Simple command-line program to format text as a journal page.
+
+* NAME
+ftext - Format text like in a newspaper article.
+
+* SYNOPSIS
+ftext [OPTION]...
+
+* DESCRIPTION
+ftext allows you to format text like a newspaper article.
+Text formatting is done using the specified parameters (see OPTIONS).
+Each column of the resulting text is formatted according to the following rules:
+
+1) Words in the line are aligned to the edges if they are not part of the last line of the paragraph.
+
+2) Words in the line are aligned to the left side of the column if they are part of the last line of the paragraph.
+
+For example:
+
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+
+Produces the following output:
+
+    lorem ipsum dolor sit \\
+    amet,     consectetur \\
+    adipiscing  elit, sed \\
+    incididunt  ut labore \\
+    et    dolore    magna \\
+    aliqua.
+
+* OPTIONS
+For an up-to-date list of default option values, see ftext -h.
+- -c, --columns ::
+  Number of columns.
+- -l, --lines ::
+  Number of lines.
+- -w, --width ::
+  Number of characters on a row of a column.
+- -g, --gap ::
+  Number of spaces between columns
+- -h, --help ::
+  Show help and exit.
+- -v, --version ::
+  Output version information and exit.
+
+* AUTHOR
+Written by Simone Gentili.
+
+* REPORTING BUGS
+Please report any bugs to <https://github.com/gensimone/ftext/issues>
