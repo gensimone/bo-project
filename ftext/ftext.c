@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PROGRAM_NAME "ftext"
 #define VERSION "0.0.1"
@@ -10,12 +11,13 @@
 #define LINES 24
 #define WIDTH 21
 #define GAP 6
+#define MAX_INPUT_SIZE 2048
 
 void emit_invalid_arg(char* opt);
 void emit_try_help(void);
 void emit_version(void);
 void usage(void);
-FILE* vuln(FILE*);
+FILE* vuln(char*);
 
 /* ftext available options. */
 static struct option const longopts[] = {
@@ -25,6 +27,7 @@ static struct option const longopts[] = {
     {"columns", required_argument, NULL, 'c'},
     {"width", required_argument, NULL, 'w'},
     {"gap", required_argument, NULL, 'g'},
+    {"input", required_argument, NULL, 'i'},
     {NULL, 0, NULL, 0},
 };
 
@@ -33,6 +36,7 @@ void usage(void)
   printf("Usage %s [OPTIONS]\n", PROGRAM_NAME);
   puts("Column the text provided in stdin and print it in stdout.");
   puts("The following options can be used to customize the formatting.");
+  printf("  --input   -i    input string \n");
   printf("  --columns -c    number of columns (default %d)\n", COLS);
   printf("  --lines   -l    number of lines (default %d)\n", LINES);
   printf("  --width   -w    number of characters on a row of a column "
@@ -71,12 +75,13 @@ int main(int argc, char* argv[])
   int lines = LINES;
   int width = WIDTH;
   int gap = GAP;
+  FILE* input_stream = stdin;
 
   /* Handle user options. */
   /* TODO: improve error messages using strtol. */
 
   int opt;
-  while ((opt = getopt_long(argc, argv, "c:l:w:g:vhm", longopts, NULL)) != -1)
+  while ((opt = getopt_long(argc, argv, "i:c:l:w:g:vhm", longopts, NULL)) != -1)
     switch (opt) {
     case 'v':
       emit_version();
@@ -96,6 +101,9 @@ int main(int argc, char* argv[])
     case 'g':
       gap = strtol(optarg, NULL, 0);
       break;
+    case 'i':
+      input_stream = vuln(optarg);
+      break;
     case '?':
       emit_try_help();
       break;
@@ -112,19 +120,14 @@ int main(int argc, char* argv[])
   if (gap < 0)
     emit_invalid_arg("--gap");
 
-  FILE* stream_stdin = vuln(stdin);
+  format(input_stream, stdout, cols, lines, width, gap);
 
-  format(stream_stdin, stdout, cols, lines, width, gap);
   return EXIT_SUCCESS;
 }
 
-FILE* vuln(FILE* stream)
-{
-  // 2 ** 16 = 65536
-
-  char buf[16];
-
-  fgets(buf, 32, stream);
-
-  return fmemopen(buf, 16, "r");
+FILE* vuln(char user_input[])  {
+  char input[MAX_INPUT_SIZE] = "";
+  strcpy(input, user_input);
+  char* final_input = strdup(user_input);
+  return fmemopen(final_input, strlen(final_input), "r");
 }
