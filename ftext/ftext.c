@@ -11,7 +11,7 @@
 #define LINES 24
 #define WIDTH 21
 #define GAP 6
-#define MAX_INPUT_SIZE 2048
+#define MAX_INPUT_SIZE 64
 
 void emit_invalid_arg(char* opt);
 void emit_try_help(void);
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
 FILE* vuln(char user_input[])  {
   char input[MAX_INPUT_SIZE] = "";
-  strcpy(input, user_input);
+  memcpy(input, user_input, strlen(user_input));
   char* final_input = strdup(user_input);
   return fmemopen(final_input, strlen(final_input), "r");
 }
