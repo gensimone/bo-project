@@ -1,97 +1,145 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<title>Ftext</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
 
-<style>
-    body {
-        background: #0f172a;
-        font-family: Arial, sans-serif;
+    <style>
+      body {
+        background: #2b2b2b;
+        color: #d1d5db;
+        font-family: "Share Tech Mono", monospace;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
         margin: 0;
-        color: white;
-    }
+      }
 
-    .container {
-        width: 700px;
-    }
+      .container {
+        width: 720px;
+      }
 
-    textarea, .output {
+      .title {
+        font-family: "Orbitron", sans-serif;
+        font-size: 34px;
+        text-align: center;
+        margin-bottom: 25px;
+        letter-spacing: 3px;
+        color: #9ca3af;
+        text-transform: uppercase;
+      }
+
+      textarea,
+      #output {
         width: 100%;
         height: 220px;
         border: none;
-        border-radius: 15px;
-        padding: 20px;
+        border-radius: 10px;
+        padding: 18px;
         box-sizing: border-box;
-        font-size: 18px;
-        margin-bottom: 20px;
-    }
-
-    textarea {
-        background: #1e293b;
-        color: white;
-        resize: none;
+        font-size: 16px;
+        margin-bottom: 18px;
+        background: #3a3a3a;
+        color: #e5e7eb;
         outline: none;
-    }
+        border: 1px solid #555;
+      }
 
-    .output {
-        background: #111827;
-        overflow-y: auto;
+      #output {
+        background: #2f2f2f;
         white-space: pre-wrap;
-    }
+        overflow: auto;
+        color: #cbd5e1;
+      }
 
-    button {
+      button {
         width: 100%;
-        padding: 15px;
+        padding: 14px;
         border: none;
-        border-radius: 12px;
-        background: #3b82f6;
-        color: white;
-        font-size: 18px;
+        border-radius: 8px;
+        background: #4b5563;
+        color: #e5e7eb;
+        font-size: 16px;
+        font-family: "Orbitron", sans-serif;
+        letter-spacing: 2px;
         cursor: pointer;
-        transition: 0.3s;
-    }
+        transition: 0.2s;
+        margin-bottom: 10px;
+      }
 
-    button:hover {
-        background: #2563eb;
-    }
-</style>
-</head>
+      button:hover {
+        background: #6b7280;
+      }
 
-<body>
+      /* styles per differenziare */
+      .clear-btn {
+        background: #374151;
+      }
 
-<div class="container">
+      .clear-btn:hover {
+        background: #52525b;
+      }
 
-    <textarea id="inputText" placeholder="Scrivi qualcosa..."></textarea>
+      .copy-btn {
+        background: #1f2937;
+      }
 
-    <div class="output" id="outputBox">
-        Insert text..
+      .copy-btn:hover {
+        background: #374151;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="title">Pretty Secure Formatter</div>
+      <textarea id="input" placeholder="Enter input..."></textarea>
+      <div id="output">output will appear here...</div>
+      <button onclick="sendData()">SUBMIT</button>
+      <button class="clear-btn" onclick="clearAll()">CLEAR</button>
+      <button class="copy-btn" onclick="copyOutput()">COPY OUTPUT</button>
     </div>
 
-    <button onclick="sendData()">Send</button>
+    <script>
+      async function sendData() {
+        const text = document.getElementById("input").value;
 
-</div>
+        const response = await fetch("/cgi-bin/run.cgi", {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: text,
+        });
 
-<script>
-async function sendData() {
-    const text = document.getElementById("inputText").value;
-    const response = await fetch("http://localhost:8000/process", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    document.getElementById("outputBox").innerText = data.result;
-}
-</script>
+        const result = await response.text();
 
-</body>
+        document.getElementById("output").innerText = result;
+      }
+
+      function clearAll() {
+        document.getElementById("input").value = "";
+        document.getElementById("output").innerText = "";
+      }
+
+      function copyOutput() {
+        const text = document.getElementById("output").innerText;
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            alert("Output copied to clipboard");
+          })
+          .catch((err) => {
+            alert("Copy failed");
+            console.error(err);
+          });
+      }
+    </script>
+  </body>
 </html>
