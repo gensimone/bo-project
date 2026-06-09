@@ -12,4 +12,7 @@ To exploit any type of buffer overflow, the attackers needs:
     2) To understand how that buffer will be stored in the processes memory, and hence the potential for corrupting
        adjacent memory locations and potentially altering the flow of execution of the program.
 
-
+Important notes:
+- The shellcode must be able to run no matter where in memory it is located.
+- The attacker is not able to precisely specify the starting address of the instructions in the shellcode.
+- If the shellcode is copied using string manipulation routines, it cannot contain NULL values in the middle of it.
