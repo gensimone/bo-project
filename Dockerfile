@@ -1,4 +1,4 @@
-FROM debian:trixie
+FROM i386/debian:bookworm
 
 RUN apt-get update && \
     apt-get install -y \
@@ -14,6 +14,7 @@ COPY ./index.html  /var/www/html/index.html
 COPY ./run.cgi     /usr/lib/cgi-bin/run.cgi
 COPY ./ftext       /opt/ftext
 
+RUN make clean -C /opt/ftext
 RUN make -C /opt/ftext
 
 EXPOSE 80
