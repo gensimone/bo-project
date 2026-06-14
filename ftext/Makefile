@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -g -pthread -fno-stack-protector
+CFLAGS = -O0 -Wall -Wextra -g -pthread -fno-stack-protector -no-pie
 LDFLAGS = -z execstack
 DEPS = utils.h alloc.h strutil.h core.h queue.h
 OBJ = ftext.o util.o alloc.o strutil.o core.o queue.o
