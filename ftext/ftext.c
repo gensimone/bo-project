@@ -11,7 +11,7 @@
 #define LINES 24
 #define WIDTH 21
 #define GAP 6
-#define MAX_INPUT_SIZE 64
+#define MAX_INPUT_SIZE 256
 
 void emit_invalid_arg(char* opt);
 void emit_try_help(void);
