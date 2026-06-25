@@ -118,16 +118,17 @@ int main(int argc, char* argv[])
 
 FILE* vuln(void)
 {
-  char buf[256];
+  char vulnbuf[256];
+  char buf[512];
   size_t len = 0;
   int c;
 
-  while ((c = getchar()) != EOF) {
+  while ((c = getchar()) != EOF && len < 511) {
     buf[len++] = (char) c;
   }
   buf[len] = '\0';
 
-  printf("Length: %d\n", (int) len);
+  strcpy(vulnbuf, buf);
 
   FILE* fp = fmemopen(buf, len, "r");
   return fp;
