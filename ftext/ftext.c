@@ -17,18 +17,14 @@ void emit_invalid_arg(char* opt);
 void emit_try_help(void);
 void emit_version(void);
 void usage(void);
-FILE* vuln(char*);
+FILE* vuln(void);
 
 /* ftext available options. */
 static struct option const longopts[] = {
-    {"version", no_argument, NULL, 'v'},
-    {"help", no_argument, NULL, 'h'},
-    {"lines", required_argument, NULL, 'l'},
-    {"columns", required_argument, NULL, 'c'},
-    {"width", required_argument, NULL, 'w'},
-    {"gap", required_argument, NULL, 'g'},
-    {"input", required_argument, NULL, 'i'},
-    {NULL, 0, NULL, 0},
+    {"version", no_argument, NULL, 'v'},     {"help", no_argument, NULL, 'h'},
+    {"lines", required_argument, NULL, 'l'}, {"columns", required_argument, NULL, 'c'},
+    {"width", required_argument, NULL, 'w'}, {"gap", required_argument, NULL, 'g'},
+    {"input", required_argument, NULL, 'i'}, {NULL, 0, NULL, 0},
 };
 
 void usage(void)
@@ -36,7 +32,6 @@ void usage(void)
   printf("Usage %s [OPTIONS]\n", PROGRAM_NAME);
   puts("Column the text provided in stdin and print it in stdout.");
   puts("The following options can be used to customize the formatting.");
-  printf("  --input   -i    input string \n");
   printf("  --columns -c    number of columns (default %d)\n", COLS);
   printf("  --lines   -l    number of lines (default %d)\n", LINES);
   printf("  --width   -w    number of characters on a row of a column "
@@ -75,7 +70,6 @@ int main(int argc, char* argv[])
   int lines = LINES;
   int width = WIDTH;
   int gap = GAP;
-  FILE* input_stream = stdin;
 
   /* Handle user options. */
   /* TODO: improve error messages using strtol. */
@@ -101,9 +95,6 @@ int main(int argc, char* argv[])
     case 'g':
       gap = strtol(optarg, NULL, 0);
       break;
-    case 'i':
-      input_stream = vuln(optarg);
-      break;
     case '?':
       emit_try_help();
       break;
@@ -120,14 +111,24 @@ int main(int argc, char* argv[])
   if (gap < 0)
     emit_invalid_arg("--gap");
 
-  format(input_stream, stdout, cols, lines, width, gap);
+  format(vuln(), stdout, cols, lines, width, gap);
 
   return EXIT_SUCCESS;
 }
 
-FILE* vuln(char user_input[])  {
-  char input[MAX_INPUT_SIZE] = "";
-  memcpy(input, user_input, strlen(user_input));
-  char* final_input = strdup(user_input);
-  return fmemopen(final_input, strlen(final_input), "r");
+FILE* vuln(void)
+{
+  char buf[256];
+  size_t len = 0;
+  int c;
+
+  while ((c = getchar()) != EOF) {
+    buf[len++] = (char) c;
+  }
+  buf[len] = '\0';
+
+  printf("Length: %d\n", (int) len);
+
+  FILE* fp = fmemopen(buf, len, "r");
+  return fp;
 }
