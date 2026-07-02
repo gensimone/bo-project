@@ -1,6 +1,6 @@
 ![](./assets/sapienza.png)
 
-# Large Stack Buffer Overflow
+# Stack Buffer Overflow
 
 Progetto per l'esame di Sicurezza.
 Facoltà di Ingegneria Informatica, Informatica e Statistica.
