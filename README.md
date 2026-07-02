@@ -1,5 +1,4 @@
-![](./assets/sapienza.png)
-
+![](./relazione/assets/sapienza.png)
 # Stack Buffer Overflow
 
 Progetto per l'esame di Sicurezza.
