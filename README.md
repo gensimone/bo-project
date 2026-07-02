@@ -9,9 +9,7 @@ Facoltà di Ingegneria Informatica, Informatica e Statistica.
 
 Gentili Simone - 1977848
 
-
 Zavaleta Alessandra - 2145832
-
 
 Kourahi Fatima - 2130726
 
