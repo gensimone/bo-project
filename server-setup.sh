@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Uncomment this to enable the web server presentation.
-# sudo cp -fv  run.cgi    /usr/lib/cgi-bin/run.cgi
-# sudo cp -fv  index.html /var/www/html/index.html
+# sudo cp -fv  webserver/run.cgi    /usr/lib/cgi-bin/run.cgi
+# sudo cp -fv  webserver/index.html /var/www/html/index.html
 # sudo cp -rfv ftext/     /opt
 # sudo make -C /opt/ftext
 # sudo systemctl restart apache2
