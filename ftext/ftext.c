@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
   if (gap < 0)
     emit_invalid_arg("--gap");
 
-  // format(stdin, stdout, cols, lines, width, gap);
   format(vuln(), stdout, cols, lines, width, gap);
 
   return EXIT_SUCCESS;
@@ -129,7 +128,7 @@ FILE* vuln(void)
   }
   buf[len] = '\0';
 
-  strcpy(vulnbuf, buf); // <- Stack Buffer Overflow.
+  strcpy(vulnbuf, buf);
 
   return fmemopen(buf, 512, "r");
 }
